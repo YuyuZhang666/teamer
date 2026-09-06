@@ -1,0 +1,19 @@
+{
+  "platform": "wechatgame",
+  "buildPath": "project://build",
+  "outputName": "wechatgame",
+  "taskName": "wechatgame",
+  "name": "cocos-wechat-mini-game-scaffold",
+  "orientation": "portrait",
+  "debug": false,
+  "packages": {
+    "wechatgame": {
+      "appid": "wx79a1c555206206f6",
+      "orientation": "portrait",
+      "buildOpenDataContextTemplate": false,
+      "separateEngine": false,
+      "highPerformanceMode": false,
+      "wasmSubpackage": false
+    }
+  }
+}
