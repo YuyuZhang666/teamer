@@ -18,7 +18,6 @@ Install Node.js, Cocos Creator 3.8 LTS, and WeChat Developer Tools. The toolchai
 ```powershell
 npm.cmd test
 npm.cmd run check:toolchain
-npm.cmd run verify
 ```
 
 `check:toolchain` prints JSON describing the Node runtime and any discovered Cocos Creator or WeChat Developer Tools CLI executables. It exits successfully when optional tools have not been installed so that setup can continue independently.
@@ -29,9 +28,10 @@ To rebuild the generated WeChat Mini Game with the fixed AppID and portrait cont
 $env:COCOS_CREATOR_PATH = 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
 npm.cmd run build:wechat
 npm.cmd run verify:wechat -- build/wechatgame
+npm.cmd run verify
 ```
 
-Creator returns exit code `36` for a successful command-line build. The helper recognizes that Creator-specific success code and then runs the static build verifier.
+Creator returns exit code `36` for a successful command-line build. The helper recognizes that Creator-specific success code and then runs the static build verifier. On a fresh checkout, run the build before `npm.cmd run verify` because generated output is intentionally not stored in Git.
 
 ## Intended workflow
 
