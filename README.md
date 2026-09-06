@@ -18,21 +18,38 @@ Install Node.js, Cocos Creator 3.8 LTS, and WeChat Developer Tools. The toolchai
 ```powershell
 npm.cmd test
 npm.cmd run check:toolchain
+npm.cmd run verify
 ```
 
 `check:toolchain` prints JSON describing the Node runtime and any discovered Cocos Creator or WeChat Developer Tools CLI executables. It exits successfully when optional tools have not been installed so that setup can continue independently.
 
-After a WeChat build verifier is added, use:
+To rebuild the generated WeChat Mini Game with the fixed AppID and portrait contract, point the helper at Cocos Creator 3.8.8 and run:
 
 ```powershell
+$env:COCOS_CREATOR_PATH = 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
+npm.cmd run build:wechat
 npm.cmd run verify:wechat -- build/wechatgame
-npm.cmd run verify
 ```
+
+Creator returns exit code `36` for a successful command-line build. The helper recognizes that Creator-specific success code and then runs the static build verifier.
 
 ## Intended workflow
 
 1. Open this repository in Cocos Creator 3.8 LTS.
-2. Keep the project in portrait at 750 × 1334 and build for WeChat Mini Game with AppID `wx79a1c555206206f6`.
-3. Import the generated `build/wechatgame` directory into WeChat Developer Tools for local preview only.
+2. Keep the project in portrait at 750 × 1334 and run `npm.cmd run build:wechat` with `COCOS_CREATOR_PATH` set as shown above.
+3. Run `npm.cmd run verify`; it must report 22 passing tests and the public/effective AppID `wx79a1c555206206f6`, `compileType: "game"`, and `orientation: "portrait"`.
+4. Log in to WeChat Developer Tools manually, then open the generated project locally:
+
+   ```powershell
+   $wechatProject = (Resolve-Path 'build\wechatgame').Path
+   & 'C:\Program Files (x86)\Tencent\微信web开发者工具\cli.bat' open --project $wechatProject --lang zh
+   npm.cmd run verify:wechat -- build/wechatgame
+   ```
+
+5. After the simulator compiles without errors, click **Preview** yourself and scan the QR code with the intended WeChat account to test on a phone.
+
+The Preview action sends a temporary preview package to WeChat services. It is a separate, user-controlled network action: this scaffold setup did not run `preview`, `auto-preview`, `upload`, or any release operation.
+
+The first local handoff and its authentication boundary are recorded in [`docs/verification/first-mobile-preview.md`](docs/verification/first-mobile-preview.md). See the official [Cocos Creator WeChat Mini Game publishing guide](https://docs.cocos.com/creator/3.8/manual/zh/editor/publish/publish-wechatgame.html) and [WeChat Developer Tools CLI documentation](https://developers.weixin.qq.com/minigame/dev/devtools/cli) for platform details.
 
 Do not upload or publish from this scaffold.
