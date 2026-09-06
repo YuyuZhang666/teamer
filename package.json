@@ -1,0 +1,12 @@
+{
+  "name": "cocos-wechat-mini-game-scaffold",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check:toolchain": "node scripts/check-toolchain.mjs",
+    "verify:wechat": "node scripts/verify-wechat-build.mjs",
+    "verify": "npm.cmd test && npm.cmd run check:toolchain && npm.cmd run verify:wechat -- build/wechatgame"
+  }
+}
