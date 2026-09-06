@@ -152,7 +152,7 @@ Commit as `feat: add portrait animated boot scene`.
 
 - [ ] **Step 1: Write the failing verifier tests**
 
-Use temporary fixture directories to cover a valid configuration, a wrong AppID, a non-minigame compile type, non-portrait orientation, and missing entry files. The valid fixture uses `appid: 'wx79a1c555206206f6'`, `compileType: 'minigame'`, and `deviceOrientation: 'portrait'`.
+Use temporary fixture directories to cover a valid configuration, a wrong AppID, a non-game compile type, non-portrait orientation, and missing entry files. The valid fixture uses `appid: 'wx79a1c555206206f6'`, `compileType: 'game'`, and `deviceOrientation: 'portrait'`.
 
 - [ ] **Step 2: Verify RED**
 
@@ -168,7 +168,7 @@ Choose the WeChat Mini Game platform, portrait orientation, Boot start scene, ou
 
 - [ ] **Step 5: Verify the generated build**
 
-Run `npm.cmd run verify:wechat -- build/wechatgame`; expect a zero exit code and a summary showing the exact AppID, minigame compile type, portrait orientation, and required entry files.
+Run `npm.cmd run verify:wechat -- build/wechatgame`; expect a zero exit code and a summary showing the exact AppID, game compile type, portrait orientation, and required entry files.
 
 - [ ] **Step 6: Commit**
 

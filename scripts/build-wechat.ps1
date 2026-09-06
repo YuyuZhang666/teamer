@@ -69,12 +69,12 @@ if (-not (Test-Path -LiteralPath $gameConfigPath -PathType Leaf)) {
     throw "Creator build did not produce $gameConfigPath"
 }
 
-# Creator 3.8.8 ships a legacy WeChat template with compileType "game".
-# Normalize only the public generated contract; private Developer Tools overrides
-# remain untouched so the verifier can expose any effective-value conflict.
+# Enforce the public build contract expected by WeChat Developer Tools.
+# Private Developer Tools overrides remain untouched so the verifier can expose
+# any effective-value conflict.
 $projectConfig = Get-Content -LiteralPath $projectConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
 Set-JsonProperty -InputObject $projectConfig -Name 'appid' -Value $expectedAppId
-Set-JsonProperty -InputObject $projectConfig -Name 'compileType' -Value 'minigame'
+Set-JsonProperty -InputObject $projectConfig -Name 'compileType' -Value 'game'
 Write-JsonWithoutBom -Path $projectConfigPath -Value $projectConfig
 
 $gameConfig = Get-Content -LiteralPath $gameConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json

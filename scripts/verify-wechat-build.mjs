@@ -50,6 +50,19 @@ function requireEntryFile(root, filename) {
   }
 }
 
+function requireProjectIdentity(config, expectedAppId, sourceLabel) {
+  if (config.appid !== expectedAppId) {
+    throw new Error(
+      `${sourceLabel} AppID mismatch: expected ${expectedAppId}, received ${String(config.appid)}`,
+    );
+  }
+  if (config.compileType !== 'game') {
+    throw new Error(
+      `${sourceLabel} compileType must be game, received ${String(config.compileType)}`,
+    );
+  }
+}
+
 export function verifyWeChatBuild(root, expectedAppId = WECHAT_APP_ID) {
   if (typeof root !== 'string' || root.trim() === '') {
     throw new TypeError('WeChat build root must be a non-empty path string');
@@ -68,16 +81,8 @@ export function verifyWeChatBuild(root, expectedAppId = WECHAT_APP_ID) {
   const effectiveConfig = { ...publicConfig, ...privateConfig };
   const gameConfig = readJsonFile(gameConfigPath);
 
-  if (effectiveConfig.appid !== expectedAppId) {
-    throw new Error(
-      `AppID mismatch: expected ${expectedAppId}, received ${String(effectiveConfig.appid)}`,
-    );
-  }
-  if (effectiveConfig.compileType !== 'minigame') {
-    throw new Error(
-      `project compileType must be minigame, received ${String(effectiveConfig.compileType)}`,
-    );
-  }
+  requireProjectIdentity(publicConfig, expectedAppId, 'project.config.json');
+  requireProjectIdentity(effectiveConfig, expectedAppId, 'effective project configuration');
   if (gameConfig.deviceOrientation !== 'portrait') {
     throw new Error(
       `game.json deviceOrientation must be portrait, received ${String(gameConfig.deviceOrientation)}`,

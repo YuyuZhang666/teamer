@@ -14,7 +14,7 @@ async function createFixture(t, options = {}) {
 
   const projectConfig = {
     appid: EXPECTED_APP_ID,
-    compileType: 'minigame',
+    compileType: 'game',
     projectname: 'teamer',
     ...options.projectConfig,
   };
@@ -53,7 +53,7 @@ test('accepts a valid portrait WeChat Mini Game build', async (t) => {
 
   assert.deepEqual(verifyWeChatBuild(root, EXPECTED_APP_ID), {
     appid: EXPECTED_APP_ID,
-    compileType: 'minigame',
+    compileType: 'game',
     orientation: 'portrait',
     entryFiles: ['game.js', 'game.json'],
   });
@@ -68,10 +68,10 @@ test('rejects a mismatched AppID', async (t) => {
   );
 });
 
-test('rejects a non-minigame compile type', async (t) => {
-  const root = await createFixture(t, { projectConfig: { compileType: 'game' } });
+test('rejects a non-game compile type', async (t) => {
+  const root = await createFixture(t, { projectConfig: { compileType: 'minigame' } });
 
-  assert.throws(() => verifyWeChatBuild(root, EXPECTED_APP_ID), /compileType.*minigame.*game/i);
+  assert.throws(() => verifyWeChatBuild(root, EXPECTED_APP_ID), /compileType.*game.*minigame/i);
 });
 
 test('rejects a non-portrait orientation', async (t) => {
@@ -105,18 +105,42 @@ test('applies a private AppID override before validation', async (t) => {
 
 test('applies a private compileType override before validation', async (t) => {
   const root = await createFixture(t, {
-    projectPrivateConfig: { compileType: 'game' },
+    projectPrivateConfig: { compileType: 'minigame' },
   });
 
-  assert.throws(() => verifyWeChatBuild(root, EXPECTED_APP_ID), /compileType.*minigame.*game/i);
+  assert.throws(() => verifyWeChatBuild(root, EXPECTED_APP_ID), /compileType.*game.*minigame/i);
 });
 
 test('accepts matching effective fields from a private config', async (t) => {
   const root = await createFixture(t, {
-    projectPrivateConfig: { appid: EXPECTED_APP_ID, compileType: 'minigame', libVersion: 'trial' },
+    projectPrivateConfig: { appid: EXPECTED_APP_ID, compileType: 'game', libVersion: 'trial' },
   });
 
   assert.equal(verifyWeChatBuild(root, EXPECTED_APP_ID).orientation, 'portrait');
+});
+
+test('rejects a private AppID override that masks an invalid public build contract', async (t) => {
+  const root = await createFixture(t, {
+    projectConfig: { appid: 'wx-public-wrong' },
+    projectPrivateConfig: { appid: EXPECTED_APP_ID },
+  });
+
+  assert.throws(
+    () => verifyWeChatBuild(root, EXPECTED_APP_ID),
+    /project\.config\.json AppID mismatch.*wx79a1c555206206f6.*wx-public-wrong/i,
+  );
+});
+
+test('rejects a private compileType override that masks an invalid public build contract', async (t) => {
+  const root = await createFixture(t, {
+    projectConfig: { compileType: 'minigame' },
+    projectPrivateConfig: { compileType: 'game' },
+  });
+
+  assert.throws(
+    () => verifyWeChatBuild(root, EXPECTED_APP_ID),
+    /project\.config\.json compileType.*game.*minigame/i,
+  );
 });
 
 test('reports the exact path for malformed JSON', async (t) => {
