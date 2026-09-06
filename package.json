@@ -8,5 +8,9 @@
     "check:toolchain": "node scripts/check-toolchain.mjs",
     "verify:wechat": "node scripts/verify-wechat-build.mjs",
     "verify": "npm.cmd test && npm.cmd run check:toolchain && npm.cmd run verify:wechat -- build/wechatgame"
-  }
+  },
+  "creator": {
+    "version": "3.8.8"
+  },
+  "uuid": "15dbed1a-24f9-4f92-9bc7-47967d67f67f"
 }

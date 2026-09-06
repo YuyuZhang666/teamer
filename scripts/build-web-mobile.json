@@ -1,0 +1,13 @@
+{
+  "platform": "web-mobile",
+  "buildPath": "project://build",
+  "outputName": "web-mobile",
+  "taskName": "web-mobile",
+  "orientation": "portrait",
+  "debug": false,
+  "packages": {
+    "web-mobile": {
+      "orientation": "portrait"
+    }
+  }
+}
