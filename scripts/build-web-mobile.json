@@ -5,6 +5,18 @@
   "taskName": "web-mobile",
   "orientation": "portrait",
   "debug": false,
+  "includeModules": [
+    "base",
+    "gfx-webgl",
+    "gfx-webgl2",
+    "2d",
+    "graphics",
+    "affine-transform",
+    "intersection-2d",
+    "ui",
+    "tween",
+    "custom-pipeline"
+  ],
   "packages": {
     "web-mobile": {
       "orientation": "portrait"

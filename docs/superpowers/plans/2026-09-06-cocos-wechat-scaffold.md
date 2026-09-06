@@ -148,11 +148,11 @@ Commit as `feat: add portrait animated boot scene`.
 
 **Interfaces:**
 - Consumes: a build-directory path argument and generated JSON files.
-- Produces: `verifyWeChatBuild(root, expectedAppId)` returning `{ appid, compileType, orientation, entryFiles }`, or throwing a precise validation error.
+- Produces: `verifyWeChatBuild(root, expectedAppId)` returning `{ appid, compileType, orientation, entryFiles, packageBytes, packageLimitBytes }`, or throwing a precise validation error.
 
 - [ ] **Step 1: Write the failing verifier tests**
 
-Use temporary fixture directories to cover a valid configuration, a wrong AppID, a non-game compile type, non-portrait orientation, and missing entry files. The valid fixture uses `appid: 'wx79a1c555206206f6'`, `compileType: 'game'`, and `deviceOrientation: 'portrait'`.
+Use temporary fixture directories to cover a valid configuration, a wrong AppID, a non-game compile type, non-portrait orientation, missing entry files, and an oversized main package. The valid fixture uses `appid: 'wx79a1c555206206f6'`, `compileType: 'game'`, and `deviceOrientation: 'portrait'`.
 
 - [ ] **Step 2: Verify RED**
 
@@ -160,15 +160,15 @@ Run `node --test tests/verify-wechat-build.test.mjs`. Expected: module-not-found
 
 - [ ] **Step 3: Implement and verify GREEN**
 
-Read JSON with actionable parse/path errors; validate the exact AppID, compile type, orientation, and presence of `game.js` plus `game.json`. Run the verifier tests and the full test suite.
+Read JSON with actionable parse/path errors; validate the exact AppID, compile type, orientation, presence of `game.js` plus `game.json`, and a conservative 4 MiB generated-directory budget. Run the verifier tests and the full test suite.
 
 - [ ] **Step 4: Configure and build in Creator**
 
-Choose the WeChat Mini Game platform, portrait orientation, Boot start scene, output `build/wechatgame`, and AppID `wx79a1c555206206f6`. Build without uploading or publishing.
+Choose the WeChat Mini Game platform, portrait orientation, Boot start scene, output `build/wechatgame`, and AppID `wx79a1c555206206f6`. Use an explicit build-time engine-feature whitelist so unused 3D physics and skeletal runtimes do not enter this neutral shell. Build without uploading or publishing.
 
 - [ ] **Step 5: Verify the generated build**
 
-Run `npm.cmd run verify:wechat -- build/wechatgame`; expect a zero exit code and a summary showing the exact AppID, game compile type, portrait orientation, and required entry files.
+Run `npm.cmd run verify:wechat -- build/wechatgame`; expect a zero exit code and a summary showing the exact AppID, game compile type, portrait orientation, required entry files, package bytes, and 4 MiB limit.
 
 - [ ] **Step 6: Commit**
 
@@ -199,3 +199,10 @@ Run `npm.cmd run verify`, inspect `git status --short`, and confirm generated di
 - [ ] **Step 4: Commit**
 
 Commit as `docs: add first mobile preview handoff`.
+
+### Post-review hardening: WeChat main-package budget
+
+- [x] Add a failing fixture proving an oversized generated package is rejected.
+- [x] Add explicit lightweight engine-module whitelists to the WeChat and browser smoke builds.
+- [x] Rebuild with Creator 3.8.8 and verify the generated WeChat directory is below 4 MiB.
+- [x] Re-run the two-size browser animation, touch, resize, and safe-area smoke test with the same module whitelist.

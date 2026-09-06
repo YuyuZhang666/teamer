@@ -6,6 +6,18 @@
   "name": "cocos-wechat-mini-game-scaffold",
   "orientation": "portrait",
   "debug": false,
+  "includeModules": [
+    "base",
+    "gfx-webgl",
+    "gfx-webgl2",
+    "2d",
+    "graphics",
+    "affine-transform",
+    "intersection-2d",
+    "ui",
+    "tween",
+    "custom-pipeline"
+  ],
   "packages": {
     "wechatgame": {
       "appid": "wx79a1c555206206f6",

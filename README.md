@@ -8,6 +8,7 @@
 - Language: TypeScript
 - Design resolution: 750 × 1334 (portrait)
 - WeChat Mini Game AppID: `wx79a1c555206206f6`
+- WeChat main-package guard: at most 4 MiB (4,194,304 bytes)
 
 ## Prerequisites
 
@@ -31,13 +32,13 @@ npm.cmd run verify:wechat -- build/wechatgame
 npm.cmd run verify
 ```
 
-Creator returns exit code `36` for a successful command-line build. The helper recognizes that Creator-specific success code and then runs the static build verifier. On a fresh checkout, run the build before `npm.cmd run verify` because generated output is intentionally not stored in Git.
+Creator returns exit code `36` for a successful command-line build. The helper recognizes that Creator-specific success code and then runs the static build verifier. The build uses an explicit lightweight engine-feature whitelist, and the verifier rejects any generated directory over 4 MiB. On a fresh checkout, run the build before `npm.cmd run verify` because generated output is intentionally not stored in Git.
 
 ## Intended workflow
 
 1. Open this repository in Cocos Creator 3.8 LTS.
 2. Keep the project in portrait at 750 × 1334 and run `npm.cmd run build:wechat` with `COCOS_CREATOR_PATH` set as shown above.
-3. Run `npm.cmd run verify`; it must report 22 passing tests and the public/effective AppID `wx79a1c555206206f6`, `compileType: "game"`, and `orientation: "portrait"`.
+3. Run `npm.cmd run verify`; it must report 25 passing tests, the public/effective AppID `wx79a1c555206206f6`, `compileType: "game"`, `orientation: "portrait"`, and `packageBytes` below `packageLimitBytes`.
 4. Log in to WeChat Developer Tools manually, then open the generated project locally:
 
    ```powershell

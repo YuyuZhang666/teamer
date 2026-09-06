@@ -4,7 +4,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { verifyWeChatBuild } from '../scripts/verify-wechat-build.mjs';
+import {
+  verifyWeChatBuild,
+  WECHAT_MAIN_PACKAGE_LIMIT_BYTES,
+} from '../scripts/verify-wechat-build.mjs';
 
 const EXPECTED_APP_ID = 'wx79a1c555206206f6';
 
@@ -51,12 +54,34 @@ async function createFixture(t, options = {}) {
 test('accepts a valid portrait WeChat Mini Game build', async (t) => {
   const root = await createFixture(t);
 
-  assert.deepEqual(verifyWeChatBuild(root, EXPECTED_APP_ID), {
+  const result = verifyWeChatBuild(root, EXPECTED_APP_ID);
+  assert.deepEqual({
+    appid: result.appid,
+    compileType: result.compileType,
+    orientation: result.orientation,
+    entryFiles: result.entryFiles,
+  }, {
     appid: EXPECTED_APP_ID,
     compileType: 'game',
     orientation: 'portrait',
     entryFiles: ['game.js', 'game.json'],
   });
+  assert.ok(result.packageBytes > 0);
+  assert.equal(result.packageLimitBytes, WECHAT_MAIN_PACKAGE_LIMIT_BYTES);
+  assert.ok(result.packageBytes < result.packageLimitBytes);
+});
+
+test('rejects a WeChat build whose main package exceeds 4 MiB', async (t) => {
+  const root = await createFixture(t);
+  await writeFile(
+    path.join(root, 'oversized.bin'),
+    Buffer.alloc(WECHAT_MAIN_PACKAGE_LIMIT_BYTES),
+  );
+
+  assert.throws(
+    () => verifyWeChatBuild(root, EXPECTED_APP_ID),
+    /main package.*exceeds.*4 MiB/i,
+  );
 });
 
 test('rejects a mismatched AppID', async (t) => {

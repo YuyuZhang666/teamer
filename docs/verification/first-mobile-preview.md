@@ -8,7 +8,7 @@
 
 - Cocos Creator：3.8.8（3.8 LTS）
 - 微信开发者工具：2.02.2608040
-- Node.js 测试：22 项
+- Node.js 测试：25 项
 - 微信小游戏 AppID：`wx79a1c555206206f6`
 - 设计方向：竖屏，750 × 1334
 - 生成目录：`build/wechatgame`
@@ -23,14 +23,16 @@
 npm.cmd run verify
 ```
 
-结果为退出码 0：22 项测试全部通过，工具链发现 Node.js、Cocos Creator 3.8.8 和微信开发者工具 CLI；微信产物校验返回：
+结果为退出码 0：25 项测试全部通过，工具链发现 Node.js、Cocos Creator 3.8.8 和微信开发者工具 CLI；微信产物校验返回：
 
 ```json
 {
   "appid": "wx79a1c555206206f6",
   "compileType": "game",
   "orientation": "portrait",
-  "entryFiles": ["game.js", "game.json"]
+  "entryFiles": ["game.js", "game.json"],
+  "packageBytes": 1750687,
+  "packageLimitBytes": 4194304
 }
 ```
 
@@ -42,7 +44,9 @@ npm.cmd run verify
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build-wechat.ps1 -CreatorPath 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
 ```
 
-Cocos Creator 返回其命令行成功码 `36`。构建助手随后校验了精确 AppID、`compileType: "game"`、竖屏方向以及 `game.js` / `game.json` 两个入口文件。
+Cocos Creator 返回其命令行成功码 `36`。构建助手随后校验了精确 AppID、`compileType: "game"`、竖屏方向、`game.js` / `game.json` 两个入口文件，以及微信主包体积。最终构建目录总计 1,750,687 bytes（约 1.67 MiB），低于 4 MiB 门禁；未使用的 Bullet、Spine、Box2D 等引擎载荷没有进入产物。
+
+同一引擎模块白名单也用于浏览器烟雾构建。375 × 667 与 390 × 844 两种竖屏尺寸均确认 Boot 场景、就绪文字、环境动效、触摸波纹、实时 resize 和安全区适配正常，浏览器运行时无错误。
 
 ### 微信开发者工具本地打开证据
 

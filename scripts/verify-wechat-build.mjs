@@ -1,8 +1,9 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const WECHAT_APP_ID = 'wx79a1c555206206f6';
+export const WECHAT_MAIN_PACKAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 
 function readJsonFile(filePath, required = true) {
   if (!existsSync(filePath)) {
@@ -63,6 +64,21 @@ function requireProjectIdentity(config, expectedAppId, sourceLabel) {
   }
 }
 
+function calculatePackageBytes(root) {
+  let bytes = 0;
+
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const entryPath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      bytes += calculatePackageBytes(entryPath);
+    } else if (entry.isFile()) {
+      bytes += statSync(entryPath).size;
+    }
+  }
+
+  return bytes;
+}
+
 export function verifyWeChatBuild(root, expectedAppId = WECHAT_APP_ID) {
   if (typeof root !== 'string' || root.trim() === '') {
     throw new TypeError('WeChat build root must be a non-empty path string');
@@ -94,11 +110,21 @@ export function verifyWeChatBuild(root, expectedAppId = WECHAT_APP_ID) {
     requireEntryFile(resolvedRoot, entryFile);
   }
 
+  const packageBytes = calculatePackageBytes(resolvedRoot);
+  if (packageBytes > WECHAT_MAIN_PACKAGE_LIMIT_BYTES) {
+    throw new Error(
+      'WeChat main package ' + packageBytes + ' bytes exceeds the 4 MiB limit ' +
+      '(' + WECHAT_MAIN_PACKAGE_LIMIT_BYTES + ' bytes)',
+    );
+  }
+
   return {
     appid: effectiveConfig.appid,
     compileType: effectiveConfig.compileType,
     orientation: gameConfig.deviceOrientation,
     entryFiles,
+    packageBytes,
+    packageLimitBytes: WECHAT_MAIN_PACKAGE_LIMIT_BYTES,
   };
 }
 
