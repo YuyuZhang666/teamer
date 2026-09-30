@@ -17,6 +17,8 @@ test('WeChat build uses an explicit lightweight engine feature whitelist', () =>
     'base',
     'gfx-webgl',
     'gfx-webgl2',
+    '3d',
+    'primitive',
     '2d',
     'graphics',
     'ui',
@@ -27,7 +29,10 @@ test('WeChat build uses an explicit lightweight engine feature whitelist', () =>
   }
 
   for (const unnecessary of [
-    '3d',
+    'animation',
+    'skeletal-animation',
+    'particle',
+    'physics-builtin',
     'physics-ammo',
     'physics-physx',
     'physics-cannon',

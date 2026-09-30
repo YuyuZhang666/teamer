@@ -10,6 +10,8 @@
     "base",
     "gfx-webgl",
     "gfx-webgl2",
+    "3d",
+    "primitive",
     "2d",
     "graphics",
     "affine-transform",
