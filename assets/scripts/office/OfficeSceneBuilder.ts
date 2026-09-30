@@ -161,8 +161,8 @@ export class OfficeSceneBuilder {
       elevator: [-9.5, 7.5, -16.5],
       reception: [11.5, 10.5, -17.5],
       'open-office': [14.5, 17.5, -14.5],
-      overview: [20.5, 25.5, -23.5],
-      settle: [19.5, 23.5, -22.0],
+      overview: [7, 25, -31],
+      settle: [8, 23, -30],
     });
     const introAnchors = {} as Record<OfficeIntroShotId, Node>;
     for (const shotId of Object.keys(definitions) as OfficeIntroShotId[]) {
