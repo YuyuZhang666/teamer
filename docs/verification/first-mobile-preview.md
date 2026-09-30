@@ -1,75 +1,83 @@
-# 首次微信本地预览交接记录
+# 微信手机预览交接记录
 
-记录日期：2026-09-07（Asia/Shanghai）
+记录日期：2026-10-01（Asia/Shanghai）
 
-本记录只覆盖 Cocos 构建、静态校验和微信开发者工具的本地打开尝试。没有执行账号自动登录、`preview`、`auto-preview`、`upload` 或发布操作，也没有加入剧情和玩法。
+## 当前交付范围
+
+当前工程已经实现第一版程序化低多边形办公室场景。画面包含电梯、前台、开放办公区、会议室、老板办公室、茶水间和厕所/摸鱼区七个连通区域，10 名 NPC 循环动作，以及一段可触摸跳过的 16 秒开场镜头。
+
+本次没有加入剧情、谜题、自由行走、正式模型、音频或正式发布操作。
 
 ## 固定环境
 
 - Cocos Creator：3.8.8（3.8 LTS）
 - 微信开发者工具：2.02.2608040
-- Node.js 测试：25 项
 - 微信小游戏 AppID：`wx79a1c555206206f6`
-- 设计方向：竖屏，750 × 1334
+- 项目类型：`game`
+- 设计方向：竖屏，`750 × 1334`
 - 生成目录：`build/wechatgame`
+- 主包限制：4,194,304 bytes
 
 ## 自动化证据
-
-### 完整验证
 
 执行：
 
 ```powershell
 npm.cmd run verify
+node 'C:\ProgramData\cocos\editors\Creator\3.8.8\resources\app.asar.unpacked\node_modules\typescript\lib\tsc.js' -p tsconfig.json --skipLibCheck
+node 'C:\ProgramData\cocos\editors\Creator\3.8.8\resources\app.asar.unpacked\node_modules\typescript\lib\tsc.js' -p tsconfig.cocos-tests.json --skipLibCheck
 ```
 
-结果为退出码 0：25 项测试全部通过，工具链发现 Node.js、Cocos Creator 3.8.8 和微信开发者工具 CLI；微信产物校验返回：
+结果：
+
+- 47 项 Node 测试全部通过。
+- 项目 TypeScript 与 Cocos 集成契约检查均以退出码 0 通过。
+- 工具链识别到 Node.js、Cocos Creator 3.8.8 和微信开发者工具 CLI。
+- Web 与微信目标均从最终源码重新构建，Cocos Creator 返回成功码 `36`。
+
+最终微信产物校验：
 
 ```json
 {
-  "appid": "wx79a1c555206206f6",
-  "compileType": "game",
-  "orientation": "portrait",
-  "entryFiles": ["game.js", "game.json"],
-  "packageBytes": 1750687,
-  "packageLimitBytes": 4194304
+  appid: wx79a1c555206206f6,
+  compileType: game,
+  orientation: portrait,
+  entryFiles: [game.js, game.json],
+  packageBytes: 2028642,
+  packageLimitBytes: 4194304
 }
 ```
 
-### Cocos 微信构建
+## Web 运行验收
 
-执行的可复现命令：
+最终 Web 构建通过 Chrome DevTools Protocol 在两个真实 CSS 视口完成检查：
+
+- `375 × 667`：开场运行正常，透明全屏触摸层有效；一次触摸后镜头稳定停在 `[8, 23, -30]`，正交高度为 `27`。
+- `390 × 844`：实时 resize 后仍只有一个 `OfficeWorld`，没有重复相机或 NPC；最终总览能同时看见电梯与老板办公室。
+- 两种尺寸均确认七区场景、10 名 NPC、安全区标题、中文文案和零运行时控制台错误。
+- HUD 文案为“准点科技”和“认真上班，开心下班”，只在开场收束阶段淡入淡出。
+- `390 × 844` 最终总览采样 120 帧：平均 `16.66 ms`、P95 `18.10 ms`、最大 `18.50 ms`，约 9,612 个三角形、193 次绘制调用、247 个场景节点和 2 台相机；采样期间无运行时错误。
+
+## 微信开发者工具状态
+
+最终构建已通过静态微信契约与包体校验。尝试在本机开发者工具中打开 `build/wechatgame` 时，CLI 找到已启动的 `9420` 本地服务，但返回错误码 `10` 和“需要重新登录”。CLI 外层退出码仍为 0，因此不能只依赖进程退出码判断登录状态。
+
+新的 Preview 二维码尚未生成，原因有两项：
+
+1. 当前微信开发者工具会话需要重新登录有该 AppID 权限的账号。
+2. Preview 会把当前私有构建包上传到微信临时预览服务；需要对这个具体外部传输给出明确授权。
+
+重新登录并授权后，可执行：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build-wechat.ps1 -CreatorPath 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
+$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$projectPath = (Resolve-Path 'build\wechatgame').Path
+& 'C:\Program Files (x86)\Tencent\微信web开发者工具\cli.bat' preview `
+  --project $projectPath `
+  --qr-format image `
+  --qr-output temp\wechat-preview-qr-$stamp.png `
+  --info-output temp\wechat-preview-info-$stamp.json `
+  --lang zh
 ```
 
-Cocos Creator 返回其命令行成功码 `36`。构建助手随后校验了精确 AppID、`compileType: "game"`、竖屏方向、`game.js` / `game.json` 两个入口文件，以及微信主包体积。最终构建目录总计 1,750,687 bytes（约 1.67 MiB），低于 4 MiB 门禁；未使用的 Bullet、Spine、Box2D 等引擎载荷没有进入产物。
-
-同一引擎模块白名单也用于浏览器烟雾构建。375 × 667 与 390 × 844 两种竖屏尺寸均确认 Boot 场景、就绪文字、环境动效、触摸波纹、实时 resize 和安全区适配正常，浏览器运行时无错误。
-
-### 微信开发者工具本地打开证据
-
-使用的唯一 CLI 动作是：
-
-```powershell
-& 'C:\Program Files (x86)\Tencent\微信web开发者工具\cli.bat' open --project 'E:\project\zzz\teamer\build\wechatgame' --lang zh
-```
-
-共保留了两次集成证据：
-
-1. 首次尝试暴露了旧校验契约错误。开发者工具把当时的 `compileType: "minigame"` 兼容性修正为小游戏所需的 `"game"`，随后输出 `[error]`、错误码 `10` 和“需要重新登录”。这促使构建脚本、测试和校验器按官方开发者工具的小游戏契约完成修正。
-2. 修正后的重试中，`project.config.json` 的哈希以及 `compileType: "game"` 在 CLI 调用前后保持不变。输出确认 IDE 已启动，并建立本地 HTTP 服务 `http://127.0.0.1:9420`；随后仍停在过期登录状态，输出 `[error]` 和 `code: 10`。这一次外层 CLI 退出码却是 0，因此不能只看退出码，必须同时检查输出中的错误标记。
-
-认证过期意味着本次不能声称项目模拟器画面已在无人值守状态下目视确认。登录失败与项目结构是两个独立问题：修正后的生成配置未被改写，之后执行的 `npm.cmd run verify:wechat -- build/wechatgame` 仍以退出码 0 通过；校验器也会同时检查可能存在的 `project.private.config.json` 覆盖。
-
-## 明早的唯一人工边界
-
-1. 在微信开发者工具界面中手动重新登录有该 AppID 权限的微信账号；本项目不会代填账号或自动扫码。
-2. 从项目根目录运行 README 中的 `open` 命令，或在开发者工具中选择 `build/wechatgame`。
-3. 打开后运行 `npm.cmd run verify:wechat -- build/wechatgame`，确认开发者工具的私有设置没有覆盖 AppID 或项目类型。
-4. 模拟器编译无误后，由你主动点击 **Preview** 并用手机微信扫码。
-
-Preview 会把一个临时预览包发送到微信服务，以便生成真机二维码；它不是正式发布，但仍属于外部传输动作。本次夜间执行没有触发 Preview、上传或发布，因此手机扫码和真机画面仍需你本人完成。
-
-相关官方资料：[微信开发者工具 CLI](https://developers.weixin.qq.com/minigame/dev/devtools/cli)、[微信项目配置文件](https://developers.weixin.qq.com/minigame/dev/devtools/projectconfig.html)、[Cocos Creator 发布微信小游戏](https://docs.cocos.com/creator/3.8/manual/zh/editor/publish/publish-wechatgame.html)。
+该命令只生成临时真机预览，不执行 `upload` 或正式发布。

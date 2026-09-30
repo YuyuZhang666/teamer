@@ -7,6 +7,7 @@ export type OfficeNpcMotionKind =
   | 'parcel-sort'
   | 'drink-stir'
   | 'meeting-nod'
+  | 'meeting-present'
   | 'boss-patrol'
   | 'flatterer-follow';
 
@@ -41,9 +42,9 @@ export const OFFICE_NPC_PLAN: readonly Readonly<OfficeNpcPlacement>[] = Object.f
   npc('worker-ordinary', 'open-office', [-5.8, 0, -3.2], 0, 'typing', 0.3),
   npc('worker-phone', 'open-office', [-1.9, 0, -3.2], 0, 'phone-glance', 0.44),
   npc('worker-overachiever', 'open-office', [-5.8, 0, 1.5], 180, 'typing', 0.57),
-  npc('worker-flatterer', 'open-office', [0.4, 0, 2.1], 30, 'flatterer-follow', 0.63),
+  npc('worker-flatterer', 'boss-office', [4.2, 0, 8.4], 180, 'flatterer-follow', 0.12),
   npc('meeting-attendee', 'meeting-room', [6.4, 0, -1.8], 90, 'meeting-nod', 0.71),
-  npc('meeting-presenter', 'meeting-room', [7.8, 0, 2.5], 180, 'meeting-nod', 0.82),
+  npc('meeting-presenter', 'meeting-room', [7.8, 0, 2.5], 180, 'meeting-present', 0.82),
   npc('pantry-guest', 'pantry', [-1.2, 0, 8.2], 0, 'drink-stir', 0.92),
   npc('boss', 'boss-office', [5.7, 0, 8.4], 180, 'boss-patrol', 0.12),
 ]);

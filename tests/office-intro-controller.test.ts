@@ -55,4 +55,3 @@ test('intro title fades in and back out only during the settle shot', () => {
   assert.equal(officeHudOpacityAt(15.5), 0.5);
   assert.equal(officeHudOpacityAt(16), 0);
 });
-

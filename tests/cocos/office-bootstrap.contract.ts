@@ -18,4 +18,3 @@ export function configureIntroContract(
   OfficeBootstrap;
   return handles;
 }
-

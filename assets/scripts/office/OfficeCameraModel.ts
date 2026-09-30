@@ -149,4 +149,3 @@ export class OfficeIntroState {
     return true;
   }
 }
-

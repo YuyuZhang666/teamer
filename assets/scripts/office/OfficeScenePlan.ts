@@ -25,6 +25,30 @@ export interface OfficeFurnitureItem extends OfficePrimitiveSpec {
 
 export const OFFICE_MIN_PASSAGE_WIDTH = 1.8;
 
+export interface OfficeDividerSegment {
+  readonly centerX: number;
+  readonly width: number;
+}
+
+export const OFFICE_UPPER_DIVIDER_SEGMENTS: readonly Readonly<OfficeDividerSegment>[] = Object.freeze([
+  Object.freeze({ centerX: -8.2, width: 1.6 }),
+  Object.freeze({ centerX: -3.75, width: 3.7 }),
+  Object.freeze({ centerX: 0.95, width: 2.1 }),
+  Object.freeze({ centerX: 6.4, width: 5.2 }),
+]);
+
+export function upperDividerLeavesPassage(centerX: number, width: number): boolean {
+  if (!Number.isFinite(centerX) || !Number.isFinite(width) || width <= 0) return false;
+  const left = centerX - width / 2;
+  const right = centerX + width / 2;
+  const epsilon = 1e-9;
+  return OFFICE_UPPER_DIVIDER_SEGMENTS.every((segment) => {
+    const segmentLeft = segment.centerX - segment.width / 2;
+    const segmentRight = segment.centerX + segment.width / 2;
+    return segmentRight <= left + epsilon || segmentLeft >= right - epsilon;
+  });
+}
+
 const furniture: OfficeFurnitureItem[] = [];
 
 function add(

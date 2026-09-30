@@ -1,56 +1,71 @@
-# Cocos WeChat Mini Game Scaffold
+# 准点科技：办公室场景 V1
 
-一个只验证工程链路的 Cocos 微信小游戏脚手架。当前阶段不包含剧情、角色、美术、音频、玩法、存档、上传或发布功能。
+这是一个基于 Cocos Creator 3.8.8 的竖屏微信小游戏工程。当前版本已经从空脚手架升级为可运行的程序化低多边形办公室场景，重点验证空间、镜头、动画、手机适配和微信构建链路。
 
-## Fixed baseline
+## 当前版本包含
 
-- Engine: Cocos Creator 3.8 LTS
-- Language: TypeScript
-- Design resolution: 750 × 1334 (portrait)
-- WeChat Mini Game AppID: `wx79a1c555206206f6`
-- WeChat main-package guard: at most 4 MiB (4,194,304 bytes)
+- 一张连通的单层办公室地图：电梯、公司入口/前台、开放办公区、会议室、老板办公室、茶水间、厕所/摸鱼区。
+- 斜俯视正交相机和 16 秒开场运镜，可在任意时刻触摸跳过并稳定落到总览。
+- 10 名程序化低多边形 NPC，包含敲键盘、看手机、等电梯、整理快递、搅拌饮料、开会点头、老板巡视和马屁精跟随等错峰循环。
+- 暖白、浅木、蓝灰、蓝绿、黄色和珊瑚色组成的明亮轻喜剧配色。
+- `750 × 1334` 竖屏设计、安全区 HUD，以及 `375 × 667`、`390 × 844` 两种手机视口适配。
+- 微信小游戏 AppID `wx79a1c555206206f6` 和 4 MiB 主包门禁。
 
-## Prerequisites
+当前不包含剧情、任务、谜题、自由行走、存档、正式人物模型、音频或正式发布流程。现有家具和人物均为程序化基础网格，后续可以在不改变布局与行为边界的前提下逐步替换为正式美术资源。
 
-Install Node.js, Cocos Creator 3.8 LTS, and WeChat Developer Tools. The toolchain probe checks a small set of common Windows install locations and reports unavailable optional tools as `null`; it does not require an installation under a particular user profile.
+## 环境要求
 
-## Commands
+- Node.js
+- Cocos Creator 3.8.8
+- 微信开发者工具
 
-```powershell
-npm.cmd test
-npm.cmd run check:toolchain
+本机使用的 Cocos Creator 路径为：
+
+```text
+C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe
 ```
 
-`check:toolchain` prints JSON describing the Node runtime and any discovered Cocos Creator or WeChat Developer Tools CLI executables. It exits successfully when optional tools have not been installed so that setup can continue independently.
+## 测试与构建
 
-To rebuild the generated WeChat Mini Game with the fixed AppID and portrait contract, point the helper at Cocos Creator 3.8.8 and run:
+运行完整自动验证：
 
 ```powershell
-$env:COCOS_CREATOR_PATH = 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
-npm.cmd run build:wechat
-npm.cmd run verify:wechat -- build/wechatgame
 npm.cmd run verify
+node 'C:\ProgramData\cocos\editors\Creator\3.8.8\resources\app.asar.unpacked\node_modules\typescript\lib\tsc.js' -p tsconfig.json --skipLibCheck
+node 'C:\ProgramData\cocos\editors\Creator\3.8.8\resources\app.asar.unpacked\node_modules\typescript\lib\tsc.js' -p tsconfig.cocos-tests.json --skipLibCheck
 ```
 
-Creator returns exit code `36` for a successful command-line build. The helper recognizes that Creator-specific success code and then runs the static build verifier. The build uses an explicit lightweight engine-feature whitelist, and the verifier rejects any generated directory over 4 MiB. On a fresh checkout, run the build before `npm.cmd run verify` because generated output is intentionally not stored in Git.
+构建浏览器手机预览：
 
-## Intended workflow
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build-web-mobile.ps1 -CreatorPath 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
+```
 
-1. Open this repository in Cocos Creator 3.8 LTS.
-2. Keep the project in portrait at 750 × 1334 and run `npm.cmd run build:wechat` with `COCOS_CREATOR_PATH` set as shown above.
-3. Run `npm.cmd run verify`; it must report 25 passing tests, the public/effective AppID `wx79a1c555206206f6`, `compileType: "game"`, `orientation: "portrait"`, and `packageBytes` below `packageLimitBytes`.
-4. Log in to WeChat Developer Tools manually, then open the generated project locally:
+构建并校验微信小游戏：
 
-   ```powershell
-   $wechatProject = (Resolve-Path 'build\wechatgame').Path
-   & 'C:\Program Files (x86)\Tencent\微信web开发者工具\cli.bat' open --project $wechatProject --lang zh
-   npm.cmd run verify:wechat -- build/wechatgame
-   ```
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build-wechat.ps1 -CreatorPath 'C:\ProgramData\cocos\editors\Creator\3.8.8\CocosCreator.exe'
+npm.cmd run verify:wechat -- build\wechatgame
+```
 
-5. After the simulator compiles without errors, click **Preview** yourself and scan the QR code with the intended WeChat account to test on a phone.
+Cocos Creator 命令行成功构建会返回它约定的退出码 `36`，两个构建助手会把这个值识别为成功。生成目录 `build/` 不提交到 Git；新检出工程需要先构建，再运行依赖微信产物的完整验证。
 
-The Preview action sends a temporary preview package to WeChat services. It is a separate, user-controlled network action: this scaffold setup did not run `preview`, `auto-preview`, `upload`, or any release operation.
+## 微信手机预览
 
-The first local handoff and its authentication boundary are recorded in [`docs/verification/first-mobile-preview.md`](docs/verification/first-mobile-preview.md). See the official [Cocos Creator WeChat Mini Game publishing guide](https://docs.cocos.com/creator/3.8/manual/zh/editor/publish/publish-wechatgame.html) and [WeChat Developer Tools CLI documentation](https://developers.weixin.qq.com/minigame/dev/devtools/cli) for platform details.
+先在微信开发者工具中登录有该 AppID 权限的账号，再在本地打开生成项目：
 
-Do not upload or publish from this scaffold.
+```powershell
+& 'C:\Program Files (x86)\Tencent\微信web开发者工具\cli.bat' open --project (Resolve-Path 'build\wechatgame').Path --lang zh
+```
+
+开发者工具的 **Preview** 会把临时构建包发送到微信服务并生成二维码；它不是正式发布，但属于外部上传操作，应在获得明确授权后执行。不要运行 `upload`，除非后续单独决定发布版本。
+
+最新构建与预览证据见 [微信手机预览交接记录](docs/verification/first-mobile-preview.md)。
+
+## 2026-10-01 验证摘要
+
+- Node 测试：47/47 通过。
+- 项目与 Cocos 集成 TypeScript 检查：退出码 0。
+- Web 与微信构建：Creator 成功码 36。
+- 微信主包：2,028,642 / 4,194,304 bytes。
+- 浏览器运行验收：七区、10 名 NPC、触摸跳过、实时 resize、安全区 HUD 和控制台均通过。

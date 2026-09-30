@@ -14,10 +14,24 @@ test('the first office scene schedules ten characters across all required motion
       'parcel-sort',
       'drink-stir',
       'meeting-nod',
+      'meeting-present',
       'boss-patrol',
       'flatterer-follow',
     ]),
   );
+});
+
+test('the flatterer shares the boss patrol area and animation phase', () => {
+  const flatterer = OFFICE_NPC_PLAN.find(({ id }) => id === 'worker-flatterer');
+  const boss = OFFICE_NPC_PLAN.find(({ id }) => id === 'boss');
+  assert.ok(flatterer);
+  assert.ok(boss);
+  assert.equal(flatterer.zone, 'boss-office');
+  assert.equal(flatterer.phaseOffset, boss.phaseOffset);
+  assert.ok(Math.hypot(
+    flatterer.position[0] - boss.position[0],
+    flatterer.position[2] - boss.position[2],
+  ) <= 2);
 });
 
 test('npc placements have unique ids and valid animation phases', () => {

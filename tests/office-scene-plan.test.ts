@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
   OFFICE_FURNITURE,
   OFFICE_MIN_PASSAGE_WIDTH,
+  OFFICE_UPPER_DIVIDER_SEGMENTS,
+  upperDividerLeavesPassage,
   officeFurnitureForZone,
 } from '../assets/scripts/office/OfficeScenePlan.ts';
 import { OFFICE_ZONES } from '../assets/scripts/office/OfficeLayout.ts';
@@ -43,5 +45,17 @@ test('the meeting room uses one transparent glass boundary and the prop budget s
   assert.equal(glass.length, 1);
   assert.equal(glass[0].transparent, true);
   assert.ok(OFFICE_FURNITURE.filter(({ smallProp }) => smallProp).length <= 24);
+});
+
+test('the upper divider leaves connected entrances for staff areas and the main aisle', () => {
+  assert.equal(OFFICE_UPPER_DIVIDER_SEGMENTS.length, 4);
+  for (const entranceX of [-6.5, -1, 2.9]) {
+    assert.equal(
+      upperDividerLeavesPassage(entranceX, OFFICE_MIN_PASSAGE_WIDTH),
+      true,
+      `divider blocks the entrance at x=${entranceX}`,
+    );
+  }
+  assert.equal(upperDividerLeavesPassage(0.9, OFFICE_MIN_PASSAGE_WIDTH), false);
 });
 

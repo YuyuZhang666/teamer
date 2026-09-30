@@ -6,7 +6,11 @@ import {
 } from './OfficeLayout.ts';
 import type { OfficePaletteKey } from './OfficePalette.ts';
 import { OfficePrimitiveFactory } from './OfficePrimitiveFactory.ts';
-import { OFFICE_FURNITURE, type OfficeFurnitureItem } from './OfficeScenePlan.ts';
+import {
+  OFFICE_FURNITURE,
+  OFFICE_UPPER_DIVIDER_SEGMENTS,
+  type OfficeFurnitureItem,
+} from './OfficeScenePlan.ts';
 import type { OfficeIntroShotId } from './OfficeIntroTimeline.ts';
 
 export interface OfficeSceneHandles {
@@ -95,12 +99,14 @@ export class OfficeSceneBuilder {
       scale: new Vec3(1.85, 0.05, 12),
       color: 'wall',
     });
-    this.primitive.createBox({
-      name: 'UpperBandDivider',
-      parent: shell,
-      position: new Vec3(0, 0.55, 5.02),
-      scale: new Vec3(18, 1.1, 0.14),
-      color: 'wall',
+    OFFICE_UPPER_DIVIDER_SEGMENTS.forEach((segment, index) => {
+      this.primitive.createBox({
+        name: `UpperBandDivider${index + 1}`,
+        parent: shell,
+        position: new Vec3(segment.centerX, 0.55, 5.02),
+        scale: new Vec3(segment.width, 1.1, 0.14),
+        color: 'wall',
+      });
     });
     this.primitive.createBox({
       name: 'MeetingDivider',

@@ -62,4 +62,3 @@ export class OfficeIntroCamera extends Component {
     this.listener?.(this.state.elapsedSeconds, sample.complete);
   }
 }
-

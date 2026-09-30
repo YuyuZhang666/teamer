@@ -17,6 +17,7 @@ export const OFFICE_NPC_MOTION_KINDS: readonly OfficeNpcMotionKind[] = Object.fr
   'parcel-sort',
   'drink-stir',
   'meeting-nod',
+  'meeting-present',
   'boss-patrol',
   'flatterer-follow',
 ]);
@@ -28,6 +29,7 @@ const PERIODS: Readonly<Record<OfficeNpcMotionKind, number>> = Object.freeze({
   'parcel-sort': 4,
   'drink-stir': 5,
   'meeting-nod': 3,
+  'meeting-present': 5,
   'boss-patrol': 8,
   'flatterer-follow': 8,
 });
@@ -82,11 +84,14 @@ export function sampleOfficeNpcMotion(
     case 'meeting-nod':
       pose = { ...pose, bodyPitch: wave * 7 };
       break;
+    case 'meeting-present':
+      pose = { ...pose, bodyYaw: wave * 10, bodyRoll: wave * 2, armPitch: -32 + cosine * 14 };
+      break;
     case 'boss-patrol':
       pose = { ...pose, offsetX: wave * 1.25, bodyYaw: cosine * 8 };
       break;
     case 'flatterer-follow':
-      pose = { ...pose, offsetX: wave * 1.05, offsetZ: cosine * 0.55, bodyYaw: cosine * 10 };
+      pose = { ...pose, offsetX: wave * 1.25, bodyYaw: cosine * 10, armPitch: -8 + cosine * 4 };
       break;
   }
 

@@ -5,4 +5,3 @@ export function officeHudOpacityAt(elapsedSeconds: number): number {
   if (time < 14 || time >= 16) return 0;
   return time <= 15 ? time - 14 : 16 - time;
 }
-

@@ -31,11 +31,29 @@ test('patrol and follow movement stays within the assigned 2.5-unit area', () =>
   }
 });
 
+test('the flatterer follows the same patrol path at a fixed comic distance', () => {
+  for (let step = 0; step <= 32; step += 1) {
+    const elapsed = step / 4;
+    const boss = sampleOfficeNpcMotion('boss-patrol', elapsed, 0.12);
+    const flatterer = sampleOfficeNpcMotion('flatterer-follow', elapsed, 0.12);
+    assert.equal(flatterer.offsetX, boss.offsetX);
+    assert.equal(flatterer.offsetZ, boss.offsetZ);
+  }
+});
+
 test('typing and meeting nods produce different readable body poses', () => {
   const typing = sampleOfficeNpcMotion('typing', 0.75, 0);
   const nodding = sampleOfficeNpcMotion('meeting-nod', 0.75, 0);
   assert.notDeepEqual(typing, nodding);
   assert.notEqual(typing.armPitch, 0);
   assert.notEqual(nodding.bodyPitch, 0);
+});
+
+test('the meeting presenter gestures instead of reusing the attendee nod', () => {
+  const presenter = sampleOfficeNpcMotion('meeting-present', 0.75, 0);
+  const attendee = sampleOfficeNpcMotion('meeting-nod', 0.75, 0);
+  assert.notDeepEqual(presenter, attendee);
+  assert.ok(Math.abs(presenter.armPitch) >= 15);
+  assert.ok(Math.abs(presenter.bodyYaw) > 0);
 });
 

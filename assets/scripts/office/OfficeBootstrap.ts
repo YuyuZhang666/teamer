@@ -80,4 +80,3 @@ export class OfficeBootstrap extends Component {
     uiCamera.visibility = Layers.BitMask.UI_2D;
   }
 }
-
