@@ -40,11 +40,44 @@ test('the open office contains exactly twelve desks, chairs and monitors', () =>
   assert.equal(openOffice.filter(({ role }) => role === 'monitor').length, 12);
 });
 
-test('the meeting room uses one transparent glass boundary and the prop budget stays restrained', () => {
+test('the meeting room uses one transparent glass boundary', () => {
   const glass = OFFICE_FURNITURE.filter(({ name }) => name === 'MeetingGlassBoundary');
   assert.equal(glass.length, 1);
   assert.equal(glass[0].transparent, true);
-  assert.ok(OFFICE_FURNITURE.filter(({ smallProp }) => smallProp).length <= 24);
+});
+
+test('every zone rewards close inspection with a mobile-safe detail budget', () => {
+  const smallProps = OFFICE_FURNITURE.filter(({ smallProp }) => smallProp);
+  assert.ok(smallProps.length >= 90, `expected at least 90 close-up details, received ${smallProps.length}`);
+  assert.ok(smallProps.length <= 140, `detail budget exceeded: ${smallProps.length}`);
+  for (const zone of OFFICE_ZONES) {
+    const count = officeFurnitureForZone(zone.id).filter(({ smallProp }) => smallProp).length;
+    assert.ok(count >= 4, `${zone.id} needs at least four close-up details, received ${count}`);
+  }
+});
+
+test('open-office close-ups reveal complete desk equipment and four comic personas', () => {
+  const openOffice = officeFurnitureForZone('open-office');
+  const names = new Set(openOffice.map(({ name }) => name));
+  assert.equal(openOffice.filter(({ name }) => name.startsWith('Keyboard')).length, 12);
+  assert.equal(openOffice.filter(({ name }) => name.startsWith('MonitorScreen')).length, 12);
+  for (const name of [
+    'PersonaNormalNotebook',
+    'PersonaSlackerPhone',
+    'PersonaGrinderFile3',
+    'PersonaFlattererFrame',
+  ]) {
+    assert.ok(names.has(name), `open-office missing personality detail ${name}`);
+  }
+});
+
+test('close-up furniture has readable silhouettes and lightweight contact shadows', () => {
+  const openOffice = officeFurnitureForZone('open-office');
+  assert.equal(openOffice.filter(({ name }) => name.startsWith('ChairBack')).length, 12);
+  assert.equal(openOffice.filter(({ name }) => name.startsWith('MonitorStand')).length, 12);
+  const contactShadows = OFFICE_FURNITURE.filter(({ name }) => name.startsWith('ContactShadow'));
+  assert.ok(contactShadows.length >= 18, `expected at least 18 contact shadows, received ${contactShadows.length}`);
+  assert.equal(contactShadows.every(({ transparent }) => transparent), true);
 });
 
 test('the upper divider leaves connected entrances for staff areas and the main aisle', () => {

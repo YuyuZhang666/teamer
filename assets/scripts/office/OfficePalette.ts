@@ -11,6 +11,7 @@ export type OfficePaletteKey =
   | 'plant'
   | 'mint'
   | 'glass'
+  | 'shadow'
   | 'ink'
   | 'skin'
   | 'white';
@@ -28,6 +29,7 @@ export const OFFICE_PALETTE: Readonly<Record<OfficePaletteKey, string>> = Object
   plant: '#5F8F62',
   mint: '#A8C7B2',
   glass: '#90BFD0AA',
+  shadow: '#2637412E',
   ink: '#263741',
   skin: '#EDC7A5',
   white: '#FFFFFF',

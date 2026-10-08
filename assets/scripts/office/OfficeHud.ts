@@ -14,6 +14,7 @@ export interface OfficeHudHandles {
   readonly root: Node;
   readonly title: Label;
   readonly subtitle: Label;
+  readonly exploreHint: Label;
   readonly skipTarget: Node;
   readonly setIntroTime: (elapsedSeconds: number) => void;
   readonly complete: () => void;
@@ -23,10 +24,19 @@ export class OfficeHud {
   build(canvas: Node): OfficeHudHandles {
     const root = this.uiNode('OfficeHud', canvas, 750, 1334);
     root.addComponent(SafeAreaLayout);
-    const title = this.label('OfficeTitle', root, '准点科技', 46, 430, new Color(38, 55, 65));
+    const title = this.label('OfficeTitle', root, '打工人有限公司', 46, 430, new Color(38, 55, 65));
     const subtitle = this.label('OfficeSubtitle', root, '认真上班，开心下班', 24, 372, new Color(46, 111, 120));
     const opacity = root.addComponent(UIOpacity);
     opacity.opacity = 0;
+    const exploreHint = this.label(
+      'ExploreHint',
+      canvas,
+      '单指拖动 · 双指缩放查看细节',
+      22,
+      -580,
+      new Color(38, 55, 65, 220),
+    );
+    exploreHint.node.active = false;
 
     const skipTarget = this.uiNode('IntroSkipTarget', canvas, 750, 1334);
     const widget = skipTarget.addComponent(Widget);
@@ -38,13 +48,15 @@ export class OfficeHud {
     const setIntroTime = (elapsedSeconds: number): void => {
       opacity.opacity = Math.round(officeHudOpacityAt(elapsedSeconds) * 255);
       skipTarget.active = elapsedSeconds < 16;
+      exploreHint.node.active = false;
     };
     const complete = (): void => {
       opacity.opacity = 0;
       skipTarget.active = false;
+      exploreHint.node.active = true;
     };
 
-    return Object.freeze({ root, title, subtitle, skipTarget, setIntroTime, complete });
+    return Object.freeze({ root, title, subtitle, exploreHint, skipTarget, setIntroTime, complete });
   }
 
   private uiNode(name: string, parent: Node, width: number, height: number): Node {

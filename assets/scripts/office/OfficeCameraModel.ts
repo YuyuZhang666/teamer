@@ -13,6 +13,111 @@ export interface OfficeCameraPose {
   readonly orthoHeight: number;
 }
 
+export interface OfficeExploreCameraState {
+  readonly targetX: number;
+  readonly targetZ: number;
+  readonly orthoHeight: number;
+}
+
+export interface OfficeExploreGesture {
+  readonly panWorldX: number;
+  readonly panWorldZ: number;
+  readonly zoomScale: number;
+}
+
+export interface OfficeTouchGesture {
+  readonly panX: number;
+  readonly panY: number;
+  readonly zoomScale: number;
+}
+
+export const OFFICE_EXPLORE_LIMITS = Object.freeze({
+  minOrthoHeight: 7,
+  maxOrthoHeight: 27,
+  maxTargetX: 6,
+  maxTargetZ: 8,
+});
+
+const clamp = (value: number, minimum: number, maximum: number): number => {
+  const clamped = Math.max(minimum, Math.min(maximum, value));
+  return clamped === 0 ? 0 : clamped;
+};
+
+export function reduceOfficeExploreCamera(
+  state: Readonly<OfficeExploreCameraState>,
+  gesture: Readonly<OfficeExploreGesture>,
+): Readonly<OfficeExploreCameraState> {
+  const zoomScale = Number.isFinite(gesture.zoomScale) && gesture.zoomScale > 0
+    ? gesture.zoomScale
+    : 1;
+  const currentHeight = Number.isFinite(state.orthoHeight)
+    ? state.orthoHeight
+    : OFFICE_EXPLORE_LIMITS.maxOrthoHeight;
+  const orthoHeight = clamp(
+    currentHeight / zoomScale,
+    OFFICE_EXPLORE_LIMITS.minOrthoHeight,
+    OFFICE_EXPLORE_LIMITS.maxOrthoHeight,
+  );
+  const zoomProgress = (
+    OFFICE_EXPLORE_LIMITS.maxOrthoHeight - orthoHeight
+  ) / (
+    OFFICE_EXPLORE_LIMITS.maxOrthoHeight - OFFICE_EXPLORE_LIMITS.minOrthoHeight
+  );
+  const maxTargetX = OFFICE_EXPLORE_LIMITS.maxTargetX * zoomProgress;
+  const maxTargetZ = OFFICE_EXPLORE_LIMITS.maxTargetZ * zoomProgress;
+  const panWorldX = Number.isFinite(gesture.panWorldX) ? gesture.panWorldX : 0;
+  const panWorldZ = Number.isFinite(gesture.panWorldZ) ? gesture.panWorldZ : 0;
+  return Object.freeze({
+    targetX: clamp(state.targetX + panWorldX, -maxTargetX, maxTargetX),
+    targetZ: clamp(state.targetZ + panWorldZ, -maxTargetZ, maxTargetZ),
+    orthoHeight,
+  });
+}
+
+type OfficeTouchPoint = readonly [number, number];
+
+export function sampleOfficeTouchGesture(
+  currentPoints: readonly OfficeTouchPoint[],
+  previousPoints: readonly OfficeTouchPoint[],
+): Readonly<OfficeTouchGesture> {
+  const pointCount = Math.min(currentPoints.length, previousPoints.length, 2);
+  if (pointCount === 0) return Object.freeze({ panX: 0, panY: 0, zoomScale: 1 });
+
+  const currentMidpointX = currentPoints
+    .slice(0, pointCount)
+    .reduce((sum, point) => sum + point[0], 0) / pointCount;
+  const currentMidpointY = currentPoints
+    .slice(0, pointCount)
+    .reduce((sum, point) => sum + point[1], 0) / pointCount;
+  const previousMidpointX = previousPoints
+    .slice(0, pointCount)
+    .reduce((sum, point) => sum + point[0], 0) / pointCount;
+  const previousMidpointY = previousPoints
+    .slice(0, pointCount)
+    .reduce((sum, point) => sum + point[1], 0) / pointCount;
+
+  let zoomScale = 1;
+  if (pointCount === 2) {
+    const currentDistance = Math.hypot(
+      currentPoints[1][0] - currentPoints[0][0],
+      currentPoints[1][1] - currentPoints[0][1],
+    );
+    const previousDistance = Math.hypot(
+      previousPoints[1][0] - previousPoints[0][0],
+      previousPoints[1][1] - previousPoints[0][1],
+    );
+    if (previousDistance > 0 && Number.isFinite(currentDistance)) {
+      zoomScale = currentDistance / previousDistance;
+    }
+  }
+
+  return Object.freeze({
+    panX: currentMidpointX - previousMidpointX,
+    panY: currentMidpointY - previousMidpointY,
+    zoomScale,
+  });
+}
+
 const pose = (
   position: OfficeTuple3,
   target: OfficeTuple3,
